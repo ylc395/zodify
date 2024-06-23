@@ -39,7 +39,7 @@ const nameSchema = z.string();
 export const personSchema = z.object({
   name: nameSchema,
   age: z.number(),
-  gender: genderSchema
+  gender: gendersSchema
 });
 ```
 
