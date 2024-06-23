@@ -273,10 +273,6 @@ export default class Generator {
       } 
 
       if (id === 'Required') {
-        return Generator.callZod('array', node.typeParameters.params.map((p) => this.fromNode(p, module)));
-      } 
-      
-      if (id === 'Required') {
         return this.fromNode(node.typeParameters.params[0], module, { zodFuncName: 'required' });
       } 
       
