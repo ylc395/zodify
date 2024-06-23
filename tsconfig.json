@@ -1,0 +1,12 @@
+{
+  "include": ["./src"],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "./dist",
+    "target": "ESNext",
+    "strict": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "module": "NodeNext",
+  }
+}

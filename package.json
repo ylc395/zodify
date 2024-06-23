@@ -1,0 +1,45 @@
+{
+  "name": "zodify",
+  "version": "1.0.0",
+  "description": "A CLI util to generate Zod schemas from TypeScript code",
+  "repository": "https://github.com/ylc395/zodify",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": "dist/cli.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "tsc --watch",
+    "prepublishOnly": "tsc"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "author": "ylc395",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/babel__generator": "^7.6.8",
+    "@types/babel__traverse": "^7.20.6",
+    "@types/common-ancestor-path": "^1.0.2",
+    "@types/doctrine": "^0.0.9",
+    "@types/fs-extra": "^11.0.4",
+    "@types/lodash-es": "^4.17.12",
+    "@types/node": "^20.12.11",
+    "get-tsconfig": "^4.7.5",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@babel/generator": "^7.24.5",
+    "@babel/parser": "^7.24.5",
+    "@babel/traverse": "^7.24.5",
+    "@babel/types": "^7.24.5",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "common-ancestor-path": "^1.0.1",
+    "doctrine": "^3.0.0",
+    "fs-extra": "^11.2.0",
+    "glob": "^10.3.15",
+    "lodash-es": "^4.17.21"
+  }
+}
