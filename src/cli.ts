@@ -26,5 +26,5 @@ try {
 if (warnings.length === 0) {
   console.log(chalk.green(`🎉 Zod schemas were generated successfully in ${options.outDir}`));
 } else {
-  console.log(chalk.yellow(`Zod schemas were generated successfully in ${options.outDir}. But there is some issues you need to check.\n\n ${warnings.join('')}`));
+  console.log(chalk.yellow(`Zod schemas were generated successfully in ${options.outDir}. But there are some issues you need to check.\n\n${warnings.join('')}`));
 }
