@@ -23,4 +23,5 @@ export interface Module {
   imports: ImportInfo[];
   reexports: ImportInfo[];
   filePath: string; // absolute path
+  outputPath?: string;
 }

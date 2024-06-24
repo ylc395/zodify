@@ -49,7 +49,7 @@ export default class Generator {
   private generateModule(module: Module) {
     const relativePath = relative(this.commonAncestorPath, module.filePath);
     const outputPath = resolve(this.config.outDir, relativePath);
-    const schemas = this.generateSchemas(module);
+    const schemas = this.generateSchemas({ ...module, outputPath });
 
     const statements = [
       schemas.length > 0 && t.importDeclaration(
@@ -210,7 +210,7 @@ export default class Generator {
     }
 
     if (!result) {
-      result = this.getUnknown(module.filePath);
+      result = this.getUnknown(module.outputPath || module.filePath);
     }
 
     if (refine && !result.extra?.[Generator.unknownSymbol]) {
