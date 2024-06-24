@@ -52,8 +52,8 @@ All options:
 
 ## TypeScript & Zod features & Limitations
 
-+ Features that can transformed between TypeScript and Zod are supported. 
-+ **An `z.unknown() will be generated if Zodify find it can not be transformed from TypeScript code to Zod schema.`** You will see warning when this happens.
++ Features that can be transformed between TypeScript and Zod are supported. 
++ **A `z.unknown() will be generated if Zodify find it can not be transformed from TypeScript code to Zod schema.`** You will see warning when this happens.
 + Types defined in global modules will not be recognized and transformed.
 
 ## Caution: Always use TypeScript to check schema
