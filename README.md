@@ -83,3 +83,5 @@ If you find any bug, please raise an issue.
 
 - [ ] Unit Tests
 - [ ] Support Recursive Types
+- [ ] Support type refinement by comments
+- [ ] Support [Valibot](https://valibot.dev)

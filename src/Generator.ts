@@ -206,7 +206,7 @@ export default class Generator {
     }
 
     if (t.isTSInterfaceBody(node) || t.isTSTypeLiteral(node)) {
-      result = this.fromTSObject(node, module);
+      result = this.fromTSObjectMembers(t.isTSInterfaceBody(node) ? node.body : node.members, module);
     }
 
     if (!result) {
@@ -245,8 +245,7 @@ export default class Generator {
     return result;
   }
 
-  private fromTSObject(node: t.TSInterfaceBody | t.TSTypeLiteral, module: Module) {
-    const members = t.isTSInterfaceBody(node) ? node.body : node.members;
+  private fromTSObjectMembers(members: t.TSTypeElement[], module: Module) {
 
     return Generator.callZod(
       'object',
