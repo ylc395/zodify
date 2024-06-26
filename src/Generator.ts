@@ -2,7 +2,7 @@ import * as t from "@babel/types";
 import generate from "@babel/generator";
 import fs from "fs-extra";
 import { resolve, relative, parse as parsePath, isAbsolute, dirname } from "node:path";
-import { compact, groupBy, identity } from "lodash-es";
+import { lowerFirst, compact, groupBy } from "lodash-es";
 import getCommonAncestorPath from "common-ancestor-path";
 
 import type { Module, ImportInfo } from './types.js';
@@ -144,9 +144,9 @@ export default class Generator {
   }
 
   private getSchemaName(originName: string) {
-    const func = this.config.nameStyle ? nameTransformers[this.config.nameStyle] : (str: string) => str;
+    const func = this.config.nameStyle && nameTransformers[this.config.nameStyle];
 
-    return func(originName + 'Schema');
+    return func ? func(`${originName}Schema`) : `${lowerFirst(originName)}Schema`;
   }
 
   private static callZod(func: string, params?: t.Expression[]) {
