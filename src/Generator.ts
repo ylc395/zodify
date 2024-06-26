@@ -118,7 +118,7 @@ export default class Generator {
     });
   }
 
-  private generateSchemas(module: Module) {
+  private generateSchemas(module: Required<Module>) {
     const { topLevelTypes: types } = module;
 
     const statements = types.flatMap(({ ast, exported, exportedAsDefault }): t.Statement[] => {
@@ -162,7 +162,7 @@ export default class Generator {
     return result;
   }
 
-  private fromNode(node: t.Node, module: Module, refine?: { zodFuncName: string, zodParams?: t.Expression[] }): t.Expression {
+  private fromNode(node: t.Node, module: Required<Module>, refine?: { zodFuncName: string, zodParams?: t.Expression[] }): t.Expression {
     if (t.isTSInterfaceDeclaration(node)) {
       return this.fromTSInterfaceDeclaration(node, module);
     }
@@ -210,7 +210,7 @@ export default class Generator {
     }
 
     if (!result) {
-      result = this.getUnknown(module.outputPath || module.filePath);
+      result = this.getUnknown(module.outputPath);
     }
 
     if (refine && !result.extra?.[Generator.unknownSymbol]) {
@@ -220,13 +220,13 @@ export default class Generator {
     return result;
   }
 
-  private fromTSInterfaceDeclaration(node: t.TSInterfaceDeclaration, module: Module) {
+  private fromTSInterfaceDeclaration(node: t.TSInterfaceDeclaration, module: Required<Module>) {
     let result: t.Expression | undefined;
 
     if (node.extends) {
       for (const { expression, typeParameters } of node.extends) {
         if (typeParameters) {
-          return this.getUnknown(module.filePath);
+          return this.getUnknown(module.outputPath);
         }
 
         const expNode = this.fromTSEntityName(expression, module);
@@ -245,7 +245,7 @@ export default class Generator {
     return result;
   }
 
-  private fromTSObjectMembers(members: t.TSTypeElement[], module: Module) {
+  private fromTSObjectMembers(members: t.TSTypeElement[], module: Required<Module>) {
 
     return Generator.callZod(
       'object',
@@ -262,7 +262,7 @@ export default class Generator {
     )
   }
 
-  private fromTSTypeReference(node: t.TSTypeReference, module: Module) {
+  private fromTSTypeReference(node: t.TSTypeReference, module: Required<Module>) {
     const id = t.isIdentifier(node.typeName) ? node.typeName.name : getFirstIdentifier(node.typeName);
 
     // handle generics type
@@ -311,27 +311,39 @@ export default class Generator {
         return Generator.callZod('record', [this.fromNode(node.typeParameters.params[1], module)])
       } 
       
-      return this.getUnknown(module.filePath);
+      return this.getUnknown(module.outputPath);
     } else {
       return this.fromTSEntityName(node.typeName, module);
     }
   }
 
-  private fromTSEntityName(node: t.TSEntityName, module: Module) {
+  private fromTSEntityName(node: t.TSEntityName, module: Required<Module>) {
     const id = t.isIdentifier(node) ? node.name : getFirstIdentifier(node);
 
     if (t.isIdentifier(node)) {
       if (!module.imports.find(({ name }) => name === id) && !module.topLevelTypes.find(({ ast }) => ast.id.name === id)) {
-        return id === 'Date' ? Generator.callZod('date') : this.getUnknown(module.filePath);
+        return Generator.fromNativeClass(id) || this.getUnknown(module.outputPath);
       }
       return t.identifier(Generator.getSchemaName(id));
     } else {
       const isFirstNamespace = Boolean(module.imports.find(({ name, origin }) => origin === '*' && name === id));
-      return this.fromTSQualifiedName(node, isFirstNamespace);
+      return this.fromTSQualifiedName(node, isFirstNamespace, module);
     }
   }
 
-  private fromTSQualifiedName(node: t.TSQualifiedName, isFirstNamespace: boolean) {
+  private static fromNativeClass(className: string) {
+    if (className === 'Date') {
+      return Generator.callZod('date');
+    }
+
+    if (className === 'ArrayBuffer') {
+      return Generator.callZod('instanceof', [t.identifier(className)]);
+    }
+
+    return null;
+  }
+
+  private fromTSQualifiedName(node: t.TSQualifiedName, isFirstNamespace: boolean, module: Required<Module>) {
     // In our view, a qualifiedName (like `a.b.c`) has no more than 3 identifier. 3 cases:
     // 1. `a.b`: `a` is an enum type
     // 2. `a.b`: `a` is a namespace
@@ -348,7 +360,7 @@ export default class Generator {
     } else {
       // unknown case
       if (!t.isIdentifier(node.left.left)) {
-        return this.getUnknown(module.filename);
+        return this.getUnknown(module.outputPath);
       }
 
       // case 3 -- z.literal(a.bSchema.enum.c)
@@ -356,13 +368,13 @@ export default class Generator {
     }
   }
 
-  private fromTSBaseType(node: t.TSBaseType, module: Module) {
+  private fromTSBaseType(node: t.TSBaseType, module: Required<Module>) {
     if (t.isTSLiteralType(node)) {
       throw Error('unexpected: can not handle TSLiteralType')
     }
 
     if (t.isTSThisType(node) || t.isTSIntrinsicKeyword(node)) {
-      return this.getUnknown(module.filePath);
+      return this.getUnknown(module.outputPath);
     }
 
     if (t.isTSObjectKeyword(node)) {
@@ -392,11 +404,11 @@ export default class Generator {
     return Generator.callZod(zodFuncs[node.type]);
   }
   
-  private fromTSLiteralType(node: t.TSLiteralType, module: Module) {
+  private fromTSLiteralType(node: t.TSLiteralType, module: Required<Module>) {
     const { literal } = node;
 
     if (t.isTemplateLiteral(literal) || t.isUnaryExpression(literal)) {
-      return this.getUnknown(module.filePath, 'string');
+      return this.getUnknown(module.outputPath, 'string');
     }
 
     const literalFuncs = {
@@ -410,9 +422,9 @@ export default class Generator {
     return Generator.callZod('literal', [zodParam]);
   }
 
-  private fromTSIndexedAccessType({ objectType, indexType }: t.TSIndexedAccessType, module: Module) {
+  private fromTSIndexedAccessType({ objectType, indexType }: t.TSIndexedAccessType, module: Required<Module>) {
     if (!t.isTSLiteralType(indexType) || !t.isStringLiteral(indexType.literal)) {
-      return this.getUnknown(module.filePath);
+      return this.getUnknown(module.outputPath);
     }
 
     const obj = this.fromNode(objectType, module);

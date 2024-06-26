@@ -59,7 +59,7 @@ export function extract(options: Options) {
   generator.generate();
 
   return [
-    ...generator.warnings.unknown.length > 0 ? `Some types can not be transformed to zod schemas. Check them in: \n ${generator.warnings.unknown.join('\n')}\n` : '',
+    ...generator.warnings.unknown.length > 0 ? `Some types can not be transformed to zod schemas. Check them in: \n${generator.warnings.unknown.join('\n')}\n` : '',
     ...generator.warnings.shouldExport.length > 0 ? `Some enum types should be exported in your source files:\n ${generator.warnings.shouldExport.map(({ typeName, path }) => `${typeName} in ${path}`).join('\n')}` : ''
   ]
 }
