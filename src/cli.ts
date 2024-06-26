@@ -10,6 +10,7 @@ program
   .requiredOption('--out-dir <outDir>', 'Directory path for generated schema files')
   .option('--pattern <pattern>', 'Regex string to match entry files')
   .option('--tag <tag>', 'Specify a comment tag as the indicator of entry', 'schema')
+  .option('--import-with-ext', 'Add .js ext to import path in generated schema files')
   .addOption(new Option('--name-style <nameStyle>', 'Specify a name style for generated schema').choices(Object.keys(nameTransformers)))
   .parse()
 

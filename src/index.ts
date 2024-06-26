@@ -7,7 +7,7 @@ import Generator, {type Config as GeneratorConfig} from "./Generator.js";
 
 export type Options = 
   & Pick<ParserConfig, 'tag'> 
-  & Pick<GeneratorConfig, 'outDir' | 'nameStyle'> 
+  & Pick<GeneratorConfig, 'outDir' | 'nameStyle' | 'importWithExt'> 
   & { tsconfig?: string, pattern?: string }
 
 export function extract(options: Options) {
@@ -53,6 +53,8 @@ export function extract(options: Options) {
 
   const generator = new Generator({
     modules,
+    importWithExt: options.importWithExt,
+    nameStyle: options.nameStyle,
     outDir: resolve(options.outDir),
   });
 

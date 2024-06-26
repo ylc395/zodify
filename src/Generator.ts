@@ -12,6 +12,7 @@ import { getFirstIdentifier, nameTransformers } from "./utils.js";
 export interface Config {
   modules: Module[];
   nameStyle?: keyof typeof nameTransformers;
+  importWithExt?: boolean;
   outDir: string; // absolute path
 }
 
@@ -78,7 +79,7 @@ export default class Generator {
     return Object.entries(importGroup).flatMap(([path, importInfos]) => {
       let importPath = relative(relative(this.config.outDir, dirname(outputPath)), relative(this.commonAncestorPath, path));
 
-      const ext = importInfos.find(({ ext }) => ext)?.ext || '';
+      const ext = this.config.importWithExt ? '.js' : '';
       const { name, dir } = parsePath(importPath);
 
       importPath = `${dir || '.'}/${name}${ext}`

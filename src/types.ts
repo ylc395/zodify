@@ -15,7 +15,6 @@ export interface ImportInfo {
   name: string; // maybe an alias, or be the same with origin. if it's a re-export, maybe '*' or 'default'
   path: string; // absolute path
   importFromSource?: boolean;
-  ext?: string; // import path may have a ext name
 }
 
 export interface Module {

@@ -2,7 +2,7 @@ import * as t from "@babel/types";
 import traverse, { type NodePath } from "@babel/traverse";
 import { parse as babelParse } from "@babel/parser";
 import { readFileSync, existsSync } from 'node:fs'
-import { dirname, extname, isAbsolute, parse, resolve } from "node:path";
+import { dirname, isAbsolute, parse, resolve } from "node:path";
 import { parse as parseComment } from "doctrine";
 import { groupBy, last, mapValues, memoize, mergeWith, uniqBy } from "lodash-es";
 import type { SchemaTypeNode, SchemaType, ImportInfo, Module } from "./types.js";
@@ -191,7 +191,6 @@ export default class Parser {
             origin: t.isImportDefaultSpecifier(specifier) ? 'default' : (t.isImportNamespaceSpecifier(specifier) ? '*' : (t.isIdentifier(specifier.imported) ? specifier.imported.name : specifier.imported.value)),
             name: specifier.local.name,
             path,
-            ext: extname(astPath.node.source.value),
           });
         }
       }
@@ -209,7 +208,6 @@ export default class Parser {
           origin: '*',
           name: '*',
           path,
-          ext: extname(astPath.node.source.value),
         });
 
         return;
@@ -227,7 +225,6 @@ export default class Parser {
             origin: t.isExportNamespaceSpecifier(specifier) ? '*' : specifier.local.name,
             name: t.isIdentifier(specifier.exported) ? specifier.exported.name : specifier.exported.value,
             path,
-            ext: extname(astPath.node.source.value),
           });
         }
       }
