@@ -47,9 +47,9 @@ All options:
 
 - `--tsconfig <tsconfig>`: Optional. tsconfig path of this project. Zodify will use tsconfig to find proper files(respecting `files` / `include`/`exclude` fields etc.) in the code base. Zodify will find proper tsconfig file if omitted
 - `--out-dir <path>`: **Required**. the directory for generated zod schema files. ** Caution: this directory will be emptied every time zodify works**
-- `--pattern`: Optional. A regex string for filter files which were found by zodify. For example: `--pattern ^src/models` let zodify find schema types under `src/models`.
-- `--tag`: Optional. The tag string used in comment. Default: 'schema'
-- `--name-style`: Optional. The naming style you want to use for zod schemas
+- `--pattern <pattern>`: Optional. A regex string for filter files which were found by zodify. For example: `--pattern ^src/models` let zodify find schema types under `src/models`.
+- `--tag <tag>`: Optional. The tag string used in comment. Default: 'schema'
+- `--name-style <nameStyle>`: Optional. The naming style you want to use for zod schemas
 
 
 use `zodify --help` to see details.

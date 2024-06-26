@@ -228,12 +228,8 @@ export default class Generator {
     let result: t.Expression | undefined;
 
     if (node.extends) {
-      for (const { expression, typeParameters } of node.extends) {
-        if (typeParameters) {
-          return this.getUnknown(module.outputPath);
-        }
-
-        const expNode = this.fromTSEntityName(expression, module);
+      for (const extendNode of node.extends) {
+        const expNode = this.fromTSTypeReference(extendNode, module);
 
         if (expNode.extra?.[Generator.unknownSymbol]) {
           return expNode;
@@ -266,8 +262,9 @@ export default class Generator {
     )
   }
 
-  private fromTSTypeReference(node: t.TSTypeReference, module: Required<Module>) {
-    const id = t.isIdentifier(node.typeName) ? node.typeName.name : getFirstIdentifier(node.typeName);
+  private fromTSTypeReference(node: t.TSTypeReference | t.TSExpressionWithTypeArguments, module: Required<Module>) {
+    const idNode = t.isTSTypeReference(node) ? node.typeName : node.expression;
+    const id = t.isIdentifier(idNode) ? idNode.name : getFirstIdentifier(idNode);
 
     // handle generics type
     if (node.typeParameters) {
@@ -317,7 +314,7 @@ export default class Generator {
       
       return this.getUnknown(module.outputPath);
     } else {
-      return this.fromTSEntityName(node.typeName, module);
+      return this.fromTSEntityName(idNode, module);
     }
   }
 
