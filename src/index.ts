@@ -7,7 +7,7 @@ import Generator, {type Config as GeneratorConfig} from "./Generator.js";
 
 export type Options = 
   & Pick<ParserConfig, 'tag'> 
-  & Pick<GeneratorConfig, 'outDir'> 
+  & Pick<GeneratorConfig, 'outDir' | 'nameStyle'> 
   & { tsconfig?: string, pattern?: string }
 
 export function extract(options: Options) {

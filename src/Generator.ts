@@ -2,15 +2,16 @@ import * as t from "@babel/types";
 import generate from "@babel/generator";
 import fs from "fs-extra";
 import { resolve, relative, parse as parsePath, isAbsolute, dirname } from "node:path";
-import { camelCase, compact, groupBy } from "lodash-es";
+import { compact, groupBy, identity } from "lodash-es";
 import getCommonAncestorPath from "common-ancestor-path";
 
 import type { Module, ImportInfo } from './types.js';
-import { getFirstIdentifier } from "./utils.js";
+import { getFirstIdentifier, nameTransformers } from "./utils.js";
 
 
 export interface Config {
   modules: Module[];
+  nameStyle?: keyof typeof nameTransformers;
   outDir: string; // absolute path
 }
 
@@ -85,7 +86,7 @@ export default class Generator {
       const specifiers = importInfos
         .filter(({ origin, importFromSource }) => origin !== '*' && !importFromSource)
         .map(({ name, origin }) => {
-          return (isReexport ? t.exportSpecifier : t.importSpecifier)(t.identifier(Generator.getSchemaName(name)), t.identifier(origin === 'default' ? 'default' : Generator.getSchemaName(origin)));
+          return (isReexport ? t.exportSpecifier : t.importSpecifier)(t.identifier(this.getSchemaName(name)), t.identifier(origin === 'default' ? 'default' : this.getSchemaName(origin)));
         }) as t.ExportSpecifier[] | t.ImportSpecifier[];
 
       const importStatement = specifiers.length > 0 && (
@@ -122,11 +123,11 @@ export default class Generator {
     const { topLevelTypes: types } = module;
 
     const statements = types.flatMap(({ ast, exported, exportedAsDefault }): t.Statement[] => {
-      const declarationStatement = t.variableDeclaration('const', [t.variableDeclarator(t.identifier(Generator.getSchemaName(ast.id.name)), this.fromNode(ast, module))]);
+      const declarationStatement = t.variableDeclaration('const', [t.variableDeclarator(t.identifier(this.getSchemaName(ast.id.name)), this.fromNode(ast, module))]);
 
       if (exported) {
         if (exportedAsDefault) {
-          return [declarationStatement, t.exportDefaultDeclaration(t.identifier(Generator.getSchemaName(ast.id.name)))];
+          return [declarationStatement, t.exportDefaultDeclaration(t.identifier(this.getSchemaName(ast.id.name)))];
         }
         return [t.exportNamedDeclaration(declarationStatement)];
       } else if (t.isTSEnumDeclaration(ast)) {
@@ -142,8 +143,10 @@ export default class Generator {
     return statements;
   }
 
-  private static getSchemaName(originName: string) {
-    return camelCase(`${originName}Schema`);
+  private getSchemaName(originName: string) {
+    const func = this.config.nameStyle ? nameTransformers[this.config.nameStyle] : (str: string) => str;
+
+    return func(originName + 'Schema');
   }
 
   private static callZod(func: string, params?: t.Expression[]) {
@@ -324,7 +327,7 @@ export default class Generator {
       if (!module.imports.find(({ name }) => name === id) && !module.topLevelTypes.find(({ ast }) => ast.id.name === id)) {
         return Generator.fromNativeClass(id) || this.getUnknown(module.outputPath);
       }
-      return t.identifier(Generator.getSchemaName(id));
+      return t.identifier(this.getSchemaName(id));
     } else {
       const isFirstNamespace = Boolean(module.imports.find(({ name, origin }) => origin === '*' && name === id));
       return this.fromTSQualifiedName(node, isFirstNamespace, module);
@@ -352,11 +355,11 @@ export default class Generator {
     if (t.isIdentifier(node.left)) {
       // case 2 -- a.bSchema
       if (isFirstNamespace) {
-        return t.memberExpression(t.identifier(node.left.name), t.identifier(Generator.getSchemaName(node.right.name)));
+        return t.memberExpression(t.identifier(node.left.name), t.identifier(this.getSchemaName(node.right.name)));
       }
 
       // case 1 -- z.literal(aSchema.enum.b)
-      return Generator.callZod('literal', [t.memberExpression(t.memberExpression(t.identifier(Generator.getSchemaName(node.left.name)), t.identifier('enum')), t.identifier(node.right.name))]);
+      return Generator.callZod('literal', [t.memberExpression(t.memberExpression(t.identifier(this.getSchemaName(node.left.name)), t.identifier('enum')), t.identifier(node.right.name))]);
     } else {
       // unknown case
       if (!t.isIdentifier(node.left.left)) {
@@ -364,7 +367,7 @@ export default class Generator {
       }
 
       // case 3 -- z.literal(a.bSchema.enum.c)
-      return Generator.callZod('literal', [t.memberExpression(t.memberExpression(t.memberExpression(t.identifier(node.left.left.name), t.identifier(Generator.getSchemaName(node.left.right.name))), t.identifier('enum')), t.identifier(node.right.name))]);
+      return Generator.callZod('literal', [t.memberExpression(t.memberExpression(t.memberExpression(t.identifier(node.left.left.name), t.identifier(this.getSchemaName(node.left.right.name))), t.identifier('enum')), t.identifier(node.right.name))]);
     }
   }
 

@@ -49,6 +49,10 @@ All options:
 - `--out-dir <path>`: **Required**. the directory for generated zod schema files. ** Caution: this directory will be emptied every time zodify works**
 - `--pattern`: Optional. A regex string for filter files which were found by zodify. For example: `--pattern ^src/models` let zodify find schema types under `src/models`.
 - `--tag`: Optional. The tag string used in comment. Default: 'schema'
+- `--name-style`: Optional. The naming style you want to use for zod schemas
+
+
+use `zodify --help` to see details.
 
 ## TypeScript & Zod features & Limitations
 
