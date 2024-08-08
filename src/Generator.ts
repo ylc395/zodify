@@ -84,6 +84,10 @@ export default class Generator {
 
       importPath = `${dir || '.'}/${name}${ext}`
 
+      if (!importPath.startsWith('./') && !importPath.startsWith('../')) {
+        importPath = `./${importPath}`
+      }
+
       const specifiers = importInfos
         .filter(({ origin, importFromSource }) => origin !== '*' && !importFromSource)
         .map(({ name, origin }) => {
