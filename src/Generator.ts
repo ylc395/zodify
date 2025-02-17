@@ -177,7 +177,7 @@ export default class Generator {
 
     let result: t.Expression | undefined;
 
-    if (t.isTSTypeAnnotation(node) || t.isTSTypeAliasDeclaration(node)) {
+    if (t.isTSTypeAnnotation(node) || t.isTSTypeAliasDeclaration(node) || t.isTSParenthesizedType(node)) {
       result = this.fromNode(node.typeAnnotation, module);
     }
 

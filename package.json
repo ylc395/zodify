@@ -1,6 +1,6 @@
 {
   "name": "zodify",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "A CLI util to generate Zod schemas from TypeScript code",
   "repository": "https://github.com/ylc395/zodify",
   "type": "module",
